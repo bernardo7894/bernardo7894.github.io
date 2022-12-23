@@ -55,13 +55,21 @@
 
       // Set up an event listener for when the user types in the user input text box
       document.getElementById("user-input").addEventListener("keyup", event => {
+        // Start the timer if it hasn't already started
+        if (!timerInterval) {
+          timerInterval = setInterval(() => {
+            timer++;
+            document.getElementById("timer").innerHTML = (timer / 100).toFixed(2) + " seconds";
+          }, 10);
+        }
+
         // If the user has typed the correct text, stop the timer and alert them
         if (event.target.value === document.getElementById("prompt-text").innerHTML) {
           clearInterval(timerInterval);
           alert("You finished in " + (timer / 100).toFixed(2) + " seconds!");
           alert.dismiss(); // Dismiss the alert message
         }
-        
+
         // Calculate the CPM and WPM
         let numChars = event.target.value.length;
         let timeInMinutes = timer / 6000; // Divide by 6000 to get time in minutes (6000 = 100 * 60)
@@ -71,7 +79,8 @@
         // Update the CPM and WPM counters
         document.getElementById("cpm").innerHTML = Math.round(cpm) + " cpm";
         document.getElementById("wpm").innerHTML = Math.round(wpm) + " wpm";
-        });
+      });
+
     </script>
   </body>
 </html>
