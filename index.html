@@ -20,6 +20,7 @@
         padding: 10px;
         background-color: #fff;
         color: #000;
+        white-space: pre-wrap;
       }
       #timer {
         font-size: 36px;
@@ -33,14 +34,16 @@
       <div id="prompt-text">Type the text displayed in this box as quickly and accurately as possible.</div>
       <input type="text" id="user-input">
       <div id="timer">0 seconds</div>
+      <div id="cpm">0 cpm</div>
+      <div id="wpm">0 wpm</div>
     </div>
     <script>
-      // Set up a timer that increments every second
+      // Set up a timer that increments every 10 milliseconds
       let timer = 0;
       let timerInterval = setInterval(() => {
         timer++;
         document.getElementById("timer").innerHTML = timer + " seconds";
-      }, 1000);
+      }, 10);
 
       // Set up an event listener for when the user types in the user input text box
       document.getElementById("user-input").addEventListener("keyup", event => {
@@ -49,7 +52,17 @@
           clearInterval(timerInterval);
           alert("You finished in " + timer + " seconds!");
         }
-      });
     </script>
   </body>
 </html>
+        // Calculate the CPM and WPM
+        let numChars = event.target.value.length;
+        let timeInMinutes = timer / 60;
+        let cpm = numChars / timeInMinutes;
+        let wpm = cpm / 5;
+
+        // Update the CPM and WPM counters
+        document.getElementById("cpm").innerHTML = Math.round(cpm) + " cpm";
+        document.getElementById("wpm").innerHTML = Math.round(wpm) + " wpm";
+      });
+      
