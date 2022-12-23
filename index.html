@@ -42,26 +42,27 @@
       let timer = 0;
       let timerInterval = setInterval(() => {
         timer++;
-        document.getElementById("timer").innerHTML = timer + " seconds";
+        document.getElementById("timer").innerHTML = (timer / 100).toFixed(2) + " seconds";
       }, 10);
 
       // Set up an event listener for when the user types in the user input text box
       document.getElementById("user-input").addEventListener("keyup", event => {
-        // If the user has typed the correct text, stop the timer and alert them
-        if (event.target.value === document.getElementById("prompt-text").innerHTML) {
-          clearInterval(timerInterval);
-          alert("You finished in " + timer + " seconds!");
-        }
-        // Calculate the CPM and WPM
-        let numChars = event.target.value.length;
-        let timeInMinutes = timer / 60;
-        let cpm = numChars / timeInMinutes;
-        let wpm = cpm / 5;
+      // If the user has typed the correct text, stop the timer and alert them
+      if (event.target.value === document.getElementById("prompt-text").innerHTML) {
+        clearInterval(timerInterval);
+        alert("You finished in " + (timer / 100).toFixed(2) + " seconds!");
+      }
 
-        // Update the CPM and WPM counters
-        document.getElementById("cpm").innerHTML = Math.round(cpm) + " cpm";
-        document.getElementById("wpm").innerHTML = Math.round(wpm) + " wpm";
-      });
+      // Calculate the CPM and WPM
+      let numChars = event.target.value.length;
+      let timeInMinutes = timer / 6000; // Divide by 6000 to get time in minutes (6000 = 100 * 60)
+      let cpm = numChars / timeInMinutes;
+      let wpm = cpm / 5;
+
+      // Update the CPM and WPM counters
+      document.getElementById("cpm").innerHTML = Math.round(cpm) + " cpm";
+      document.getElementById("wpm").innerHTML = Math.round(wpm) + " wpm";
+    });
     </script>
   </body>
 </html>
