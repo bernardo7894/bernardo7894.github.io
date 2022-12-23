@@ -52,9 +52,6 @@
           clearInterval(timerInterval);
           alert("You finished in " + timer + " seconds!");
         }
-    </script>
-  </body>
-</html>
         // Calculate the CPM and WPM
         let numChars = event.target.value.length;
         let timeInMinutes = timer / 60;
@@ -65,4 +62,6 @@
         document.getElementById("cpm").innerHTML = Math.round(cpm) + " cpm";
         document.getElementById("wpm").innerHTML = Math.round(wpm) + " wpm";
       });
-      
+    </script>
+  </body>
+</html>
