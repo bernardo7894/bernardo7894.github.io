@@ -183,7 +183,10 @@
                         <span class="title">${highlight(m.title, query)}</span>
                         <span class="year">(${m.year || '?'})</span>
                     </div>
-                    <span class="id">LB ↗</span>
+                    <div style="text-align: right;">
+                         <span class="votes" style="display:block; font-size: 0.8rem; color: #666;">${m.votes ? m.votes.toLocaleString() + ' votes' : ''}</span>
+                         <span class="id">LB ↗</span>
+                    </div>
                 </a>
             `).join('');
 
