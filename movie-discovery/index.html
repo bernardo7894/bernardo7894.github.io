@@ -204,16 +204,24 @@
                 : `Showing all ${currentMatches.length.toLocaleString()} matches for "${activeQuery}".`;
         }
 
+        let scrollCheckScheduled = false;
         window.addEventListener('scroll', () => {
-            if (!currentMatches.length || visibleCount >= currentMatches.length) {
+            if (scrollCheckScheduled) {
                 return;
             }
+            scrollCheckScheduled = true;
+            requestAnimationFrame(() => {
+                scrollCheckScheduled = false;
+                if (!currentMatches.length || visibleCount >= currentMatches.length) {
+                    return;
+                }
 
-            const scrollPosition = window.innerHeight + window.scrollY;
-            const threshold = document.body.offsetHeight - 300;
-            if (scrollPosition >= threshold) {
-                displayNextBatch();
-            }
+                const scrollPosition = window.innerHeight + window.scrollY;
+                const threshold = document.body.offsetHeight - 300;
+                if (scrollPosition >= threshold) {
+                    displayNextBatch();
+                }
+            });
         }, { passive: true });
 
         function escapeRegex(value) {
