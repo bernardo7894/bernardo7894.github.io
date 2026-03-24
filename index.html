@@ -189,7 +189,7 @@
     <h1>Instant Movie Search</h1>
 
     <div class="top-layout">
-        <aside class="keyword-panel" aria-label="Bernardo keywords">
+        <aside class="keyword-panel" aria-label="Bernardo's keywords">
             <h2>Bernardo's keywords</h2>
             <div class="keyword-list" id="bernardoKeywords"></div>
         </aside>
@@ -204,7 +204,7 @@
             <div id="status">Loading data...</div>
         </div>
 
-        <aside class="keyword-panel" aria-label="Silvana keywords">
+        <aside class="keyword-panel" aria-label="Silvana's keywords">
             <h2>Silvana's keywords</h2>
             <div class="keyword-list" id="silvanaKeywords"></div>
         </aside>
@@ -243,9 +243,15 @@
 
         function renderKeywordButtons(containerId, keywords) {
             const container = document.getElementById(containerId);
-            container.innerHTML = keywords
-                .map(keyword => `<button type="button" class="keyword-button" data-keyword="${keyword}">${keyword}</button>`)
-                .join('');
+            container.innerHTML = '';
+            keywords.forEach((keyword) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'keyword-button';
+                button.dataset.keyword = keyword;
+                button.textContent = keyword;
+                container.appendChild(button);
+            });
         }
 
         function searchByKeyword(keyword) {
@@ -257,13 +263,31 @@
         renderKeywordButtons('bernardoKeywords', bernardoKeywords);
         renderKeywordButtons('silvanaKeywords', silvanaKeywords);
 
-        document.addEventListener('click', (event) => {
-            const target = event.target.closest('.keyword-button');
-            if (!target) {
-                return;
-            }
-            searchByKeyword(target.dataset.keyword);
-        });
+        function bindKeywordEvents(containerId) {
+            const container = document.getElementById(containerId);
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.keyword-button');
+                if (!target) {
+                    return;
+                }
+                searchByKeyword(target.dataset.keyword);
+            });
+            container.addEventListener('keydown', (event) => {
+                const target = event.target.matches('.keyword-button')
+                    ? event.target
+                    : event.target.closest('.keyword-button');
+                if (!target) {
+                    return;
+                }
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    searchByKeyword(target.dataset.keyword);
+                }
+            });
+        }
+
+        bindKeywordEvents('bernardoKeywords');
+        bindKeywordEvents('silvanaKeywords');
 
         function escapeRegex(value) {
             return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
