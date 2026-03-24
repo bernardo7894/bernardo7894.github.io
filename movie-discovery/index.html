@@ -122,6 +122,10 @@
         const loader = document.getElementById('loader');
 
         let movies = [];
+        let currentMatches = [];
+        let visibleCount = 0;
+        let activeQuery = '';
+        const BATCH_SIZE = 100;
 
         window.onload = function() {
             if (window.allMovies) {
@@ -136,32 +140,29 @@
         };
 
         const performSearch = (query) => {
-            const resultsDiv = document.getElementById('results');
-            if (!query || query.length < 2) {
+            const normalizedQuery = query.trim();
+            if (!normalizedQuery || normalizedQuery.length < 2) {
                 resultsDiv.innerHTML = '';
+                currentMatches = [];
+                visibleCount = 0;
+                activeQuery = '';
+                statusDiv.textContent = `Loaded ${movies.length.toLocaleString()} movies. Ready to search.`;
                 return;
             }
 
-            const lowerQuery = query.toLowerCase();
+            const lowerQuery = normalizedQuery.toLowerCase();
             const matches = [];
-            const MAX_RESULTS = 50; 
 
-            // Search algorithm
-            // Since the list is pre-sorted by Year (Newest First),
-            // a simple linear scan will naturally return the NEWEST movies that match.
-            // This is exactly what we want (ignoring old obscure films if newer ones exist).
-            
-            let count = 0;
             for (let i = 0; i < movies.length; i++) {
-                // movies[i] is now an object {id, title, year}
                 if (movies[i].title.toLowerCase().includes(lowerQuery)) {
                     matches.push(movies[i]);
-                    count++;
-                    if (count >= MAX_RESULTS) break; 
                 }
             }
 
-            displayResults(matches, query);
+            currentMatches = matches;
+            activeQuery = normalizedQuery;
+            visibleCount = 0;
+            displayNextBatch(true);
         };
 
         // Simple debounce
@@ -171,16 +172,22 @@
             timeout = setTimeout(() => performSearch(e.target.value), 300);
         });
 
-        function displayResults(matches, query) {
-            if (matches.length === 0) {
+        function displayNextBatch(reset = false) {
+            if (reset) {
+                resultsDiv.innerHTML = '';
+            }
+
+            if (currentMatches.length === 0) {
                 resultsDiv.innerHTML = '<div style="text-align:center; color:#666;">No matches found</div>';
+                statusDiv.textContent = `0 matches for "${activeQuery}"`;
                 return;
             }
 
-            const html = matches.map(m => `
+            const nextBatch = currentMatches.slice(visibleCount, visibleCount + BATCH_SIZE);
+            const html = nextBatch.map(m => `
                 <a href="https://letterboxd.com/imdb/${m.id}" target="_blank" class="movie-card">
                     <div>
-                        <span class="title">${highlight(m.title, query)}</span>
+                        <span class="title">${highlight(m.title, activeQuery)}</span>
                         <span class="year">(${m.year || '?'})</span>
                     </div>
                     <div style="text-align: right;">
@@ -190,11 +197,39 @@
                 </a>
             `).join('');
 
-            resultsDiv.innerHTML = html;
+            resultsDiv.insertAdjacentHTML('beforeend', html);
+            visibleCount += nextBatch.length;
+            statusDiv.textContent = visibleCount < currentMatches.length
+                ? `Showing ${visibleCount.toLocaleString()} of ${currentMatches.length.toLocaleString()} matches for "${activeQuery}". Scroll to load more.`
+                : `Showing all ${currentMatches.length.toLocaleString()} matches for "${activeQuery}".`;
+        }
+
+        let scrollCheckScheduled = false;
+        window.addEventListener('scroll', () => {
+            if (scrollCheckScheduled) {
+                return;
+            }
+            scrollCheckScheduled = true;
+            requestAnimationFrame(() => {
+                scrollCheckScheduled = false;
+                if (!currentMatches.length || visibleCount >= currentMatches.length) {
+                    return;
+                }
+
+                const scrollPosition = window.innerHeight + window.scrollY;
+                const threshold = document.body.offsetHeight - 300;
+                if (scrollPosition >= threshold) {
+                    displayNextBatch();
+                }
+            });
+        }, { passive: true });
+
+        function escapeRegex(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
         function highlight(text, query) {
-            const regex = new RegExp(`(${query})`, 'gi');
+            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
             return text.replace(regex, '<span style="color:var(--accent);">$1</span>');
         }
 
