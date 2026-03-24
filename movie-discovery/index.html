@@ -29,6 +29,20 @@
             top: 20px;
             z-index: 100;
         }
+        .search-options {
+            margin-top: 10px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+        .search-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
         input {
             width: 100%;
             padding: 15px;
@@ -109,6 +123,11 @@
     
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Type to search (e.g. 'Silence')..." disabled>
+        <div class="search-options">
+            <label><input type="radio" name="searchMode" value="contains" checked> Contains</label>
+            <label><input type="radio" name="searchMode" value="wholeWord"> Whole word only</label>
+            <label><input type="radio" name="searchMode" value="compound"> Whole word + compounds</label>
+        </div>
         <div id="status">Loading data...</div>
     </div>
 
@@ -120,11 +139,13 @@
         const resultsDiv = document.getElementById('results');
         const statusDiv = document.getElementById('status');
         const loader = document.getElementById('loader');
+        const modeInputs = document.querySelectorAll('input[name="searchMode"]');
 
         let movies = [];
         let currentMatches = [];
         let visibleCount = 0;
         let activeQuery = '';
+        let activeMode = 'contains';
         const BATCH_SIZE = 100;
 
         window.onload = function() {
@@ -139,6 +160,10 @@
             }
         };
 
+        function escapeRegex(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
         const performSearch = (query) => {
             const normalizedQuery = query.trim();
             if (!normalizedQuery || normalizedQuery.length < 2) {
@@ -152,9 +177,27 @@
 
             const lowerQuery = normalizedQuery.toLowerCase();
             const matches = [];
+            const escapedQuery = escapeRegex(lowerQuery);
+            const wholeWordRegex = activeMode === 'contains'
+                ? null
+                : new RegExp(`(^|[^a-z0-9])${escapedQuery}([^a-z0-9]|$)`, 'i');
+            const compoundRegex = activeMode === 'compound'
+                ? new RegExp(`(^|[^a-z0-9])${escapedQuery}[a-z0-9]*`, 'i')
+                : null;
 
             for (let i = 0; i < movies.length; i++) {
-                if (movies[i].title.toLowerCase().includes(lowerQuery)) {
+                const lowerTitle = movies[i].title.toLowerCase();
+                let isMatch = false;
+
+                if (activeMode === 'contains') {
+                    isMatch = lowerTitle.includes(lowerQuery);
+                } else if (activeMode === 'wholeWord') {
+                    isMatch = wholeWordRegex.test(lowerTitle);
+                } else {
+                    isMatch = wholeWordRegex.test(lowerTitle) || compoundRegex.test(lowerTitle);
+                }
+
+                if (isMatch) {
                     matches.push(movies[i]);
                 }
             }
@@ -170,6 +213,13 @@
         input.addEventListener('input', (e) => {
             clearTimeout(timeout);
             timeout = setTimeout(() => performSearch(e.target.value), 300);
+        });
+
+        modeInputs.forEach(modeInput => {
+            modeInput.addEventListener('change', () => {
+                activeMode = document.querySelector('input[name="searchMode"]:checked').value;
+                performSearch(input.value);
+            });
         });
 
         function displayNextBatch(reset = false) {
@@ -223,10 +273,6 @@
                 }
             });
         }, { passive: true });
-
-        function escapeRegex(value) {
-            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
 
         function highlight(text, query) {
             const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
