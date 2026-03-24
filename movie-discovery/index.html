@@ -160,6 +160,10 @@
             }
         };
 
+        function escapeRegex(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
         const performSearch = (query) => {
             const normalizedQuery = query.trim();
             if (!normalizedQuery || normalizedQuery.length < 2) {
@@ -174,19 +178,24 @@
             const lowerQuery = normalizedQuery.toLowerCase();
             const matches = [];
             const escapedQuery = escapeRegex(lowerQuery);
-            const wholeWordRegex = new RegExp(`(^|[^a-z0-9])${escapedQuery}([^a-z0-9]|$)`, 'i');
-            const compoundRegex = new RegExp(`(^|[^a-z0-9])${escapedQuery}[a-z0-9]+`, 'i');
+            const wholeWordRegex = activeMode === 'contains'
+                ? null
+                : new RegExp(`(^|[^a-z0-9])${escapedQuery}([^a-z0-9]|$)`, 'i');
+            const compoundRegex = activeMode === 'compound'
+                ? new RegExp(`(^|[^a-z0-9])${escapedQuery}[a-z0-9]*`, 'i')
+                : null;
 
             for (let i = 0; i < movies.length; i++) {
                 const lowerTitle = movies[i].title.toLowerCase();
-                const isContainsMatch = lowerTitle.includes(lowerQuery);
-                const isWholeWordMatch = wholeWordRegex.test(lowerTitle);
-                const isCompoundMatch = compoundRegex.test(lowerTitle);
-                const isMatch = activeMode === 'contains'
-                    ? isContainsMatch
-                    : activeMode === 'wholeWord'
-                        ? isWholeWordMatch
-                        : (isWholeWordMatch || isCompoundMatch);
+                let isMatch = false;
+
+                if (activeMode === 'contains') {
+                    isMatch = lowerTitle.includes(lowerQuery);
+                } else if (activeMode === 'wholeWord') {
+                    isMatch = wholeWordRegex.test(lowerTitle);
+                } else {
+                    isMatch = wholeWordRegex.test(lowerTitle) || compoundRegex.test(lowerTitle);
+                }
 
                 if (isMatch) {
                     matches.push(movies[i]);
@@ -264,10 +273,6 @@
                 }
             });
         }, { passive: true });
-
-        function escapeRegex(value) {
-            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
 
         function highlight(text, query) {
             const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
