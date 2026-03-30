@@ -293,6 +293,50 @@
             return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
+        // Irregular plurals mapping (singular <-> plural)
+        const irregularPlurals = {
+            'child': 'children', 'man': 'men', 'woman': 'women', 'person': 'people',
+            'foot': 'feet', 'tooth': 'teeth', 'goose': 'geese', 'mouse': 'mice',
+            'louse': 'lice', 'ox': 'oxen', 'die': 'dice', 'cactus': 'cacti',
+            'focus': 'foci', 'fungus': 'fungi', 'nucleus': 'nuclei', 'syllabus': 'syllabi',
+            'analysis': 'analyses', 'crisis': 'crises', 'thesis': 'theses',
+            'phenomenon': 'phenomena', 'criterion': 'criteria', 'datum': 'data',
+            'appendix': 'appendices', 'index': 'indices', 'matrix': 'matrices',
+            'vertex': 'vertices', 'wife': 'wives', 'knife': 'knives', 'life': 'lives',
+            'wolf': 'wolves', 'calf': 'calves', 'half': 'halves', 'leaf': 'leaves',
+            'loaf': 'loaves', 'shelf': 'shelves', 'thief': 'thieves', 'self': 'selves',
+            'elf': 'elves', 'dwarf': 'dwarves', 'scarf': 'scarves', 'city': 'cities',
+            'baby': 'babies', 'lady': 'ladies', 'story': 'stories', 'army': 'armies',
+            'sky': 'skies', 'fly': 'flies', 'spy': 'spies', 'body': 'bodies',
+            'family': 'families', 'hero': 'heroes', 'potato': 'potatoes', 'tomato': 'tomatoes',
+            'echo': 'echoes', 'torpedo': 'torpedoes', 'veto': 'vetoes', 'volcano': 'volcanoes',
+            'fish': 'fish', 'sheep': 'sheep', 'deer': 'deer', 'species': 'species',
+            'series': 'series', 'aircraft': 'aircraft', 'kid': 'kids'
+        };
+
+        // Build reverse mapping (plural -> singular)
+        const pluralToSingular = {};
+        for (const [singular, plural] of Object.entries(irregularPlurals)) {
+            pluralToSingular[plural] = singular;
+        }
+
+        // Get all forms of a word (singular and plural)
+        function getWordForms(word) {
+            const lowerWord = word.toLowerCase();
+            const forms = [lowerWord];
+            
+            // Check if it's a known singular
+            if (irregularPlurals[lowerWord]) {
+                forms.push(irregularPlurals[lowerWord]);
+            }
+            // Check if it's a known plural
+            if (pluralToSingular[lowerWord]) {
+                forms.push(pluralToSingular[lowerWord]);
+            }
+            
+            return [...new Set(forms)];
+        }
+
         const performSearch = (query) => {
             const normalizedQuery = query.trim();
             if (!normalizedQuery || normalizedQuery.length < 2) {
@@ -306,12 +350,16 @@
 
             const lowerQuery = normalizedQuery.toLowerCase();
             const matches = [];
-            const escapedQuery = escapeRegex(lowerQuery);
-            const wholeWordRegex = activeMode === 'contains'
+            
+            // Get all word forms (singular/plural) for whole word modes
+            const wordForms = (activeMode === 'contains') ? [lowerQuery] : getWordForms(lowerQuery);
+            
+            // Build regex patterns for each word form
+            const wholeWordRegexes = (activeMode === 'contains')
                 ? null
-                : new RegExp(`(^|[^a-z0-9])${escapedQuery}([^a-z0-9]|$)`, 'i');
-            const compoundRegex = activeMode === 'compound'
-                ? new RegExp(`(^|[^a-z0-9])${escapedQuery}[a-z0-9]*`, 'i')
+                : wordForms.map(form => new RegExp(`(^|[^a-z0-9])${escapeRegex(form)}([^a-z0-9]|$)`, 'i'));
+            const compoundRegexes = (activeMode === 'compound')
+                ? wordForms.map(form => new RegExp(`(^|[^a-z0-9])${escapeRegex(form)}[a-z0-9]*`, 'i'))
                 : null;
 
             for (let i = 0; i < movies.length; i++) {
@@ -321,9 +369,10 @@
                 if (activeMode === 'contains') {
                     isMatch = lowerTitle.includes(lowerQuery);
                 } else if (activeMode === 'wholeWord') {
-                    isMatch = wholeWordRegex.test(lowerTitle);
+                    isMatch = wholeWordRegexes.some(regex => regex.test(lowerTitle));
                 } else {
-                    isMatch = wholeWordRegex.test(lowerTitle) || compoundRegex.test(lowerTitle);
+                    isMatch = wholeWordRegexes.some(regex => regex.test(lowerTitle)) || 
+                              compoundRegexes.some(regex => regex.test(lowerTitle));
                 }
 
                 if (isMatch) {
