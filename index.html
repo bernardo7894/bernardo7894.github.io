@@ -302,39 +302,70 @@
             'analysis': 'analyses', 'crisis': 'crises', 'thesis': 'theses',
             'phenomenon': 'phenomena', 'criterion': 'criteria', 'datum': 'data',
             'appendix': 'appendices', 'index': 'indices', 'matrix': 'matrices',
-            'vertex': 'vertices', 'wife': 'wives', 'knife': 'knives', 'life': 'lives',
-            'wolf': 'wolves', 'calf': 'calves', 'half': 'halves', 'leaf': 'leaves',
-            'loaf': 'loaves', 'shelf': 'shelves', 'thief': 'thieves', 'self': 'selves',
-            'elf': 'elves', 'dwarf': 'dwarves', 'scarf': 'scarves', 'city': 'cities',
-            'baby': 'babies', 'lady': 'ladies', 'story': 'stories', 'army': 'armies',
-            'sky': 'skies', 'fly': 'flies', 'spy': 'spies', 'body': 'bodies',
-            'family': 'families', 'hero': 'heroes', 'potato': 'potatoes', 'tomato': 'tomatoes',
-            'echo': 'echoes', 'torpedo': 'torpedoes', 'veto': 'vetoes', 'volcano': 'volcanoes',
-            'fish': 'fish', 'sheep': 'sheep', 'deer': 'deer', 'species': 'species',
-            'series': 'series', 'aircraft': 'aircraft', 'kid': 'kids'
+            'vertex': 'vertices', 'fish': 'fish', 'sheep': 'sheep', 'deer': 'deer',
+            'species': 'species', 'series': 'series', 'aircraft': 'aircraft',
+            'octopus': 'octopuses', 'radius': 'radii', 'stimulus': 'stimuli',
+            'alumnus': 'alumni', 'corpus': 'corpora', 'genus': 'genera'
         };
 
         // Build reverse mapping (plural -> singular)
         const pluralToSingular = {};
         for (const [singular, plural] of Object.entries(irregularPlurals)) {
-            pluralToSingular[plural] = singular;
+            if (singular !== plural) pluralToSingular[plural] = singular;
         }
 
-        // Get all forms of a word (singular and plural)
+        // Generate plural form using English rules
+        function pluralize(word) {
+            const lower = word.toLowerCase();
+            if (irregularPlurals[lower]) return irregularPlurals[lower];
+            
+            // Standard English pluralization rules
+            if (/[sxz]$/.test(lower) || /[sc]h$/.test(lower)) return lower + 'es';
+            if (/[^aeiou]y$/.test(lower)) return lower.slice(0, -1) + 'ies';
+            if (/[^aeiou]o$/.test(lower)) return lower + 'es';
+            if (/f$/.test(lower)) return lower.slice(0, -1) + 'ves';
+            if (/fe$/.test(lower)) return lower.slice(0, -2) + 'ves';
+            return lower + 's';
+        }
+
+        // Attempt to singularize a word
+        function singularize(word) {
+            const lower = word.toLowerCase();
+            if (pluralToSingular[lower]) return pluralToSingular[lower];
+            
+            // Reverse standard rules
+            if (/ves$/.test(lower)) {
+                const feForm = lower.slice(0, -3) + 'fe';
+                const fForm = lower.slice(0, -3) + 'f';
+                return fForm; // Common case: wolves->wolf
+            }
+            if (/ies$/.test(lower) && lower.length > 4) return lower.slice(0, -3) + 'y';
+            if (/([sxz]|[sc]h)es$/.test(lower)) return lower.slice(0, -2);
+            if (/oes$/.test(lower)) return lower.slice(0, -2);
+            if (/s$/.test(lower) && !/ss$/.test(lower)) return lower.slice(0, -1);
+            return lower;
+        }
+
+        // Check if query is a single word (noun candidate for plural matching)
+        function isSingleWord(query) {
+            return /^[a-z]+$/i.test(query.trim());
+        }
+
+        // Get all forms of a word (singular and plural) - only for single words
+        let activeWordForms = [];
         function getWordForms(word) {
             const lowerWord = word.toLowerCase();
-            const forms = [lowerWord];
+            if (!isSingleWord(lowerWord)) return [lowerWord];
             
-            // Check if it's a known singular
-            if (irregularPlurals[lowerWord]) {
-                forms.push(irregularPlurals[lowerWord]);
-            }
-            // Check if it's a known plural
-            if (pluralToSingular[lowerWord]) {
-                forms.push(pluralToSingular[lowerWord]);
-            }
+            const forms = new Set([lowerWord]);
+            forms.add(pluralize(lowerWord));
+            forms.add(singularize(lowerWord));
             
-            return [...new Set(forms)];
+            // Also check irregular mappings
+            if (irregularPlurals[lowerWord]) forms.add(irregularPlurals[lowerWord]);
+            if (pluralToSingular[lowerWord]) forms.add(pluralToSingular[lowerWord]);
+            
+            return [...forms].filter(f => f.length >= 2);
         }
 
         const performSearch = (query) => {
@@ -353,6 +384,7 @@
             
             // Get all word forms (singular/plural) for whole word modes
             const wordForms = (activeMode === 'contains') ? [lowerQuery] : getWordForms(lowerQuery);
+            activeWordForms = wordForms; // Store for highlighting
             
             // Build regex patterns for each word form
             const wholeWordRegexes = (activeMode === 'contains')
@@ -453,7 +485,10 @@
         }, { passive: true });
 
         function highlight(text, query) {
-            const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+            // Highlight all word forms (singular/plural) in whole word modes
+            const formsToHighlight = activeWordForms.length > 0 ? activeWordForms : [query];
+            const pattern = formsToHighlight.map(f => escapeRegex(f)).join('|');
+            const regex = new RegExp(`(${pattern})`, 'gi');
             return text.replace(regex, '<span style="color:var(--accent);">$1</span>');
         }
 
