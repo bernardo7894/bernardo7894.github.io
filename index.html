@@ -8,7 +8,7 @@
         :root {
             --bg: #111;
             --text: #eee;
-            --accent: #ff8c00; /* Letterboxd-ish orange */
+            --accent: #ff8c00;
             --card: #222;
         }
         body {
@@ -22,27 +22,49 @@
             align-items: center;
         }
         h1 { margin-bottom: 20px; color: var(--accent); }
-        .top-layout {
+
+        .main-layout {
             width: 100%;
             max-width: 1100px;
-            display: grid;
-            grid-template-columns: minmax(180px, 1fr) minmax(320px, 600px) minmax(180px, 1fr);
-            gap: 16px;
-            align-items: start;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-section {
+            background: var(--bg);
+            padding: 10px 0 20px;
             position: sticky;
-            top: 20px;
+            top: 0;
             z-index: 100;
         }
+
         .search-container {
-            width: 100%;
             max-width: 600px;
+            margin: 0 auto;
         }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid #444;
+            background: #333;
+            color: white;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        #searchInput:focus { border-color: var(--accent); }
+
         .search-options {
-            margin-top: 10px;
+            margin-top: 12px;
             display: flex;
-            gap: 14px;
+            gap: 10px;
             flex-wrap: wrap;
-            font-size: 0.9rem;
+            justify-content: center;
+            font-size: 0.85rem;
             color: #bbb;
         }
         .search-options label {
@@ -53,79 +75,92 @@
             background: #252525;
             border: 1px solid #3d3d3d;
             border-radius: 999px;
-            padding: 8px 12px;
+            padding: 6px 12px;
             transition: border-color 0.2s, background 0.2s;
         }
         .search-options label:hover {
             border-color: #5a5a5a;
             background: #2f2f2f;
         }
+        .search-options label.active {
+            border-color: var(--accent);
+            background: #2a2010;
+        }
         .search-options input[type="radio"] {
             accent-color: var(--accent);
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
-        input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            border: 2px solid #444;
-            background: #333;
-            color: white;
-            outline: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        input:focus { border-color: var(--accent); }
-        
+
         #status {
             margin-top: 10px;
             color: #888;
             font-size: 0.9rem;
+            text-align: center;
         }
 
-        #results {
-            width: 100%;
-            max-width: 800px;
-            margin-top: 30px;
-            display: grid;
-            gap: 10px;
+        #variantsInfo {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #1a2520;
+            border: 1px solid #2a4a3a;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #7eb89a;
+            display: none;
         }
+        #variantsInfo.visible { display: block; }
+        #variantsInfo .label { color: #5a9a7a; font-weight: 500; }
+
+        .keywords-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
         .keyword-panel {
             background: #1a1a1a;
             border: 1px solid #2d2d2d;
             border-radius: 10px;
             padding: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .keyword-panel h2 {
             margin: 0 0 10px;
-            font-size: 1rem;
-            color: #ddd;
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
         }
         .keyword-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
         .keyword-button {
-            border: 1px solid #444;
-            background: #2d2d2d;
-            color: #f1f1f1;
+            border: 1px solid #3a3a3a;
+            background: #252525;
+            color: #ccc;
             border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 0.85rem;
+            padding: 5px 10px;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            transition: all 0.2s;
         }
         .keyword-button:hover {
-            background: #3a3a3a;
+            background: #333;
             border-color: var(--accent);
-            transform: translateY(-1px);
+            color: #fff;
         }
         .keyword-button:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 2px;
+        }
+
+        #results {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            gap: 10px;
+            width: 100%;
         }
 
         .movie-card {
@@ -138,16 +173,17 @@
             text-decoration: none;
             color: inherit;
             transition: transform 0.2s, background 0.2s;
+            border-left: 4px solid transparent;
         }
         .movie-card:hover {
             transform: translateY(-2px);
             background: #2a2a2a;
-            border-left: 4px solid var(--accent);
+            border-left-color: var(--accent);
         }
         .title { font-weight: bold; font-size: 1.1rem; }
         .year { color: #888; margin-left: 10px; }
         .id { font-family: monospace; color: #555; font-size: 0.8rem; }
-        
+
         .loading {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -167,16 +203,19 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @media (max-width: 900px) {
-            .top-layout {
+
+        @media (max-width: 700px) {
+            .keywords-row {
                 grid-template-columns: 1fr;
-                position: static;
             }
-            .search-container {
-                order: 1;
+            .search-options {
+                gap: 6px;
+            }
+            .search-options label {
+                padding: 5px 10px;
+                font-size: 0.8rem;
             }
         }
-
     </style>
 </head>
 <body>
@@ -188,29 +227,35 @@
 
     <h1>Instant Movie Search</h1>
 
-    <div class="top-layout">
-        <aside class="keyword-panel" aria-label="Bernardo's keywords">
-            <h2>Bernardo's keywords</h2>
-            <div class="keyword-list" id="bernardoKeywords"></div>
-        </aside>
-
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Type to search (e.g. 'Silence')..." disabled>
-            <div class="search-options">
-                <label><input type="radio" name="searchMode" value="contains" checked> Contains</label>
-                <label><input type="radio" name="searchMode" value="wholeWord"> Whole word only</label>
-                <label><input type="radio" name="searchMode" value="compound"> Whole word + compounds</label>
+    <div class="main-layout">
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Type to search (e.g. 'Murder', 'City')..." disabled>
+                <div class="search-options">
+                    <label><input type="radio" name="searchMode" value="substring" checked> Substring</label>
+                    <label><input type="radio" name="searchMode" value="exact"> Exact Word</label>
+                    <label><input type="radio" name="searchMode" value="variants"> Variants ✨</label>
+                </div>
+                <div id="variantsInfo">
+                    <span class="label">Searching variants:</span> <span id="variantsList"></span>
+                </div>
+                <div id="status">Loading data...</div>
             </div>
-            <div id="status">Loading data...</div>
+        </section>
+
+        <div class="keywords-row">
+            <aside class="keyword-panel" aria-label="Bernardo's keywords">
+                <h2>Bernardo's keywords</h2>
+                <div class="keyword-list" id="bernardoKeywords"></div>
+            </aside>
+            <aside class="keyword-panel" aria-label="Silvana's keywords">
+                <h2>Silvana's keywords</h2>
+                <div class="keyword-list" id="silvanaKeywords"></div>
+            </aside>
         </div>
 
-        <aside class="keyword-panel" aria-label="Silvana's keywords">
-            <h2>Silvana's keywords</h2>
-            <div class="keyword-list" id="silvanaKeywords"></div>
-        </aside>
+        <div id="results"></div>
     </div>
-
-    <div id="results"></div>
 
     <script src="movies_data.js"></script>
     <script>
@@ -218,6 +263,8 @@
         const resultsDiv = document.getElementById('results');
         const statusDiv = document.getElementById('status');
         const loader = document.getElementById('loader');
+        const variantsInfo = document.getElementById('variantsInfo');
+        const variantsList = document.getElementById('variantsList');
         const modeInputs = document.querySelectorAll('input[name="searchMode"]');
         const bernardoKeywords = ['Summer', 'Time', 'End', 'King', 'City', 'Lady', 'Sun', 'Heart', 'Mountain', 'Mother', 'Island', 'Fire', 'Queen', 'Art', 'Hell'];
         const silvanaKeywords = ['Journey', 'Angel', 'Brother', 'Light', 'Sea', 'Voice', 'Land', 'Wife', 'Dog', 'Hour', 'Sky', 'Kid', 'Murder', 'Baby', 'God'];
@@ -226,7 +273,8 @@
         let currentMatches = [];
         let visibleCount = 0;
         let activeQuery = '';
-        let activeMode = 'contains';
+        let activeMode = 'substring';
+        let activeWordForms = [];
         const BATCH_SIZE = 100;
 
         window.onload = function() {
@@ -239,7 +287,14 @@
             } else {
                 statusDiv.textContent = "Error loading data. Make sure movies_data.js is in the same folder.";
             }
+            updateModeLabels();
         };
+
+        function updateModeLabels() {
+            modeInputs.forEach(inp => {
+                inp.closest('label').classList.toggle('active', inp.checked);
+            });
+        }
 
         function renderKeywordButtons(containerId, keywords) {
             const container = document.getElementById(containerId);
@@ -267,18 +322,12 @@
             const container = document.getElementById(containerId);
             container.addEventListener('click', (event) => {
                 const target = event.target.closest('.keyword-button');
-                if (!target) {
-                    return;
-                }
+                if (!target) return;
                 searchByKeyword(target.dataset.keyword);
             });
             container.addEventListener('keydown', (event) => {
-                const target = event.target.matches('.keyword-button')
-                    ? event.target
-                    : event.target.closest('.keyword-button');
-                if (!target) {
-                    return;
-                }
+                const target = event.target.closest('.keyword-button');
+                if (!target) return;
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
                     searchByKeyword(target.dataset.keyword);
@@ -293,121 +342,281 @@
             return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
-        // Irregular plurals mapping (singular <-> plural)
+        // ========== WORD VARIANTS SYSTEM ==========
+
+        // Irregular plurals (truly irregular only)
         const irregularPlurals = {
             'child': 'children', 'man': 'men', 'woman': 'women', 'person': 'people',
             'foot': 'feet', 'tooth': 'teeth', 'goose': 'geese', 'mouse': 'mice',
             'louse': 'lice', 'ox': 'oxen', 'die': 'dice', 'cactus': 'cacti',
-            'focus': 'foci', 'fungus': 'fungi', 'nucleus': 'nuclei', 'syllabus': 'syllabi',
+            'focus': 'foci', 'fungus': 'fungi', 'nucleus': 'nuclei',
             'analysis': 'analyses', 'crisis': 'crises', 'thesis': 'theses',
-            'phenomenon': 'phenomena', 'criterion': 'criteria', 'datum': 'data',
-            'appendix': 'appendices', 'index': 'indices', 'matrix': 'matrices',
-            'vertex': 'vertices', 'fish': 'fish', 'sheep': 'sheep', 'deer': 'deer',
-            'species': 'species', 'series': 'series', 'aircraft': 'aircraft',
-            'octopus': 'octopuses', 'radius': 'radii', 'stimulus': 'stimuli',
-            'alumnus': 'alumni', 'corpus': 'corpora', 'genus': 'genera'
+            'phenomenon': 'phenomena', 'criterion': 'criteria',
+            'fish': 'fish', 'sheep': 'sheep', 'deer': 'deer', 'species': 'species',
+            'series': 'series', 'aircraft': 'aircraft', 'octopus': 'octopuses'
         };
 
-        // Build reverse mapping (plural -> singular)
         const pluralToSingular = {};
-        for (const [singular, plural] of Object.entries(irregularPlurals)) {
-            if (singular !== plural) pluralToSingular[plural] = singular;
+        for (const [s, p] of Object.entries(irregularPlurals)) {
+            if (s !== p) pluralToSingular[p] = s;
         }
 
-        // Generate plural form using English rules
-        function pluralize(word) {
-            const lower = word.toLowerCase();
-            if (irregularPlurals[lower]) return irregularPlurals[lower];
-            
-            // Standard English pluralization rules
-            if (/[sxz]$/.test(lower) || /[sc]h$/.test(lower)) return lower + 'es';
-            if (/[^aeiou]y$/.test(lower)) return lower.slice(0, -1) + 'ies';
-            if (/[^aeiou]o$/.test(lower)) return lower + 'es';
-            if (/f$/.test(lower)) return lower.slice(0, -1) + 'ves';
-            if (/fe$/.test(lower)) return lower.slice(0, -2) + 'ves';
-            return lower + 's';
-        }
+        // Irregular verbs base forms
+        const irregularVerbs = {
+            'kill': ['kills', 'killed', 'killing', 'killer', 'killers'],
+            'die': ['dies', 'died', 'dying', 'death', 'deaths'],
+            'run': ['runs', 'ran', 'running', 'runner', 'runners'],
+            'swim': ['swims', 'swam', 'swimming', 'swimmer', 'swimmers'],
+            'sing': ['sings', 'sang', 'sung', 'singing', 'singer', 'singers'],
+            'ring': ['rings', 'rang', 'rung', 'ringing', 'ringer'],
+            'drive': ['drives', 'drove', 'driven', 'driving', 'driver', 'drivers'],
+            'write': ['writes', 'wrote', 'written', 'writing', 'writer', 'writers'],
+            'ride': ['rides', 'rode', 'ridden', 'riding', 'rider', 'riders'],
+            'fight': ['fights', 'fought', 'fighting', 'fighter', 'fighters'],
+            'teach': ['teaches', 'taught', 'teaching', 'teacher', 'teachers'],
+            'catch': ['catches', 'caught', 'catching', 'catcher', 'catchers'],
+            'buy': ['buys', 'bought', 'buying', 'buyer', 'buyers'],
+            'sell': ['sells', 'sold', 'selling', 'seller', 'sellers'],
+            'tell': ['tells', 'told', 'telling', 'teller', 'tellers'],
+            'speak': ['speaks', 'spoke', 'spoken', 'speaking', 'speaker', 'speakers'],
+            'break': ['breaks', 'broke', 'broken', 'breaking', 'breaker', 'breakers'],
+            'steal': ['steals', 'stole', 'stolen', 'stealing', 'stealer'],
+            'dream': ['dreams', 'dreamed', 'dreamt', 'dreaming', 'dreamer', 'dreamers'],
+            'sleep': ['sleeps', 'slept', 'sleeping', 'sleeper', 'sleepers'],
+            'keep': ['keeps', 'kept', 'keeping', 'keeper', 'keepers'],
+            'lead': ['leads', 'led', 'leading', 'leader', 'leaders'],
+            'read': ['reads', 'reading', 'reader', 'readers'],
+            'hide': ['hides', 'hid', 'hidden', 'hiding', 'hider'],
+            'begin': ['begins', 'began', 'begun', 'beginning', 'beginner', 'beginners'],
+            'win': ['wins', 'won', 'winning', 'winner', 'winners'],
+            'lose': ['loses', 'lost', 'losing', 'loser', 'losers'],
+            'choose': ['chooses', 'chose', 'chosen', 'choosing', 'chooser'],
+            'lie': ['lies', 'lay', 'lain', 'lying', 'liar', 'liars'],
+            'fly': ['flies', 'flew', 'flown', 'flying', 'flyer', 'flyers', 'flier', 'fliers']
+        };
 
-        // Attempt to singularize a word
-        function singularize(word) {
-            const lower = word.toLowerCase();
-            if (pluralToSingular[lower]) return pluralToSingular[lower];
-            
-            // Reverse standard rules
-            if (/ves$/.test(lower)) {
-                const feForm = lower.slice(0, -3) + 'fe';
-                const fForm = lower.slice(0, -3) + 'f';
-                return fForm; // Common case: wolves->wolf
+        // Build reverse mapping for verbs
+        const verbFormToBase = {};
+        for (const [base, forms] of Object.entries(irregularVerbs)) {
+            for (const form of forms) {
+                if (!verbFormToBase[form]) verbFormToBase[form] = [];
+                verbFormToBase[form].push(base);
             }
-            if (/ies$/.test(lower) && lower.length > 4) return lower.slice(0, -3) + 'y';
-            if (/([sxz]|[sc]h)es$/.test(lower)) return lower.slice(0, -2);
-            if (/oes$/.test(lower)) return lower.slice(0, -2);
-            if (/s$/.test(lower) && !/ss$/.test(lower)) return lower.slice(0, -1);
-            return lower;
         }
 
-        // Check if query is a single word (noun candidate for plural matching)
         function isSingleWord(query) {
             return /^[a-z]+$/i.test(query.trim());
         }
 
-        // Get all forms of a word (singular and plural) - only for single words
-        let activeWordForms = [];
-        function getWordForms(word) {
-            const lowerWord = word.toLowerCase();
-            if (!isSingleWord(lowerWord)) return [lowerWord];
-            
-            const forms = new Set([lowerWord]);
-            forms.add(pluralize(lowerWord));
-            forms.add(singularize(lowerWord));
-            
-            // Also check irregular mappings
-            if (irregularPlurals[lowerWord]) forms.add(irregularPlurals[lowerWord]);
-            if (pluralToSingular[lowerWord]) forms.add(pluralToSingular[lowerWord]);
-            
-            return [...forms].filter(f => f.length >= 2);
+        // Generate noun plural using English rules
+        function pluralize(word) {
+            const w = word.toLowerCase();
+            if (irregularPlurals[w]) return irregularPlurals[w];
+            if (/[sxz]$/.test(w) || /[sc]h$/.test(w)) return w + 'es';
+            if (/[^aeiou]y$/.test(w)) return w.slice(0, -1) + 'ies';
+            if (/[^aeiou]o$/.test(w)) return w + 'es';
+            if (/f$/.test(w)) return w.slice(0, -1) + 'ves';
+            if (/fe$/.test(w)) return w.slice(0, -2) + 'ves';
+            return w + 's';
         }
+
+        // Attempt to get singular from plural
+        function singularize(word) {
+            const w = word.toLowerCase();
+            if (pluralToSingular[w]) return pluralToSingular[w];
+            if (/ves$/.test(w)) return w.slice(0, -3) + 'f';
+            if (/ies$/.test(w) && w.length > 4) return w.slice(0, -3) + 'y';
+            if (/([sxz]|[sc]h)es$/.test(w)) return w.slice(0, -2);
+            if (/oes$/.test(w)) return w.slice(0, -2);
+            if (/s$/.test(w) && !/ss$/.test(w) && w.length > 2) return w.slice(0, -1);
+            return w;
+        }
+
+        // Generate verb forms using English rules
+        function generateVerbForms(word) {
+            const w = word.toLowerCase();
+            const forms = new Set([w]);
+            
+            // Check irregular verbs first
+            if (irregularVerbs[w]) {
+                irregularVerbs[w].forEach(f => forms.add(f));
+                return [...forms];
+            }
+            
+            // Check if this is a known verb form -> get base
+            if (verbFormToBase[w]) {
+                verbFormToBase[w].forEach(base => {
+                    forms.add(base);
+                    if (irregularVerbs[base]) {
+                        irregularVerbs[base].forEach(f => forms.add(f));
+                    }
+                });
+                return [...forms];
+            }
+            
+            // Regular verb conjugation rules
+            let stem = w;
+            
+            // -ing form
+            if (w.endsWith('e') && !w.endsWith('ee')) {
+                forms.add(w.slice(0, -1) + 'ing'); // make -> making
+            } else if (/[^aeiou][aeiou][^aeiouwxy]$/.test(w) && w.length <= 5) {
+                forms.add(w + w.slice(-1) + 'ing'); // run -> running, stop -> stopping
+            } else {
+                forms.add(w + 'ing');
+            }
+            
+            // -ed form (past)
+            if (w.endsWith('e')) {
+                forms.add(w + 'd');
+            } else if (/[^aeiou]y$/.test(w)) {
+                forms.add(w.slice(0, -1) + 'ied');
+            } else if (/[^aeiou][aeiou][^aeiouwxy]$/.test(w) && w.length <= 5) {
+                forms.add(w + w.slice(-1) + 'ed');
+            } else {
+                forms.add(w + 'ed');
+            }
+            
+            // -s form (3rd person)
+            if (/[sxz]$/.test(w) || /[sc]h$/.test(w)) {
+                forms.add(w + 'es');
+            } else if (/[^aeiou]y$/.test(w)) {
+                forms.add(w.slice(0, -1) + 'ies');
+            } else {
+                forms.add(w + 's');
+            }
+            
+            // -er form (agent noun)
+            if (w.endsWith('e')) {
+                forms.add(w + 'r');
+                forms.add(w + 'rs');
+            } else if (/[^aeiou][aeiou][^aeiouwxy]$/.test(w) && w.length <= 5) {
+                forms.add(w + w.slice(-1) + 'er');
+                forms.add(w + w.slice(-1) + 'ers');
+            } else {
+                forms.add(w + 'er');
+                forms.add(w + 'ers');
+            }
+            
+            return [...forms];
+        }
+
+        // Try to extract base form from derived word
+        function getBaseForms(word) {
+            const w = word.toLowerCase();
+            const bases = new Set([w]);
+            
+            // Remove common suffixes to find potential base
+            if (w.endsWith('ing')) {
+                bases.add(w.slice(0, -3));           // killing -> kill
+                bases.add(w.slice(0, -3) + 'e');     // making -> make
+                if (w.length > 5 && w[w.length-4] === w[w.length-5]) {
+                    bases.add(w.slice(0, -4));       // running -> run
+                }
+            }
+            if (w.endsWith('ed')) {
+                bases.add(w.slice(0, -2));           // killed -> kill
+                bases.add(w.slice(0, -1));           // moved -> move (via -d)
+                if (w.length > 4 && w[w.length-3] === w[w.length-4]) {
+                    bases.add(w.slice(0, -3));       // stopped -> stop
+                }
+            }
+            if (w.endsWith('ied')) {
+                bases.add(w.slice(0, -3) + 'y');     // cried -> cry
+            }
+            if (w.endsWith('er') && w.length > 3) {
+                bases.add(w.slice(0, -2));           // killer -> kill
+                bases.add(w.slice(0, -1));           // maker -> make
+                if (w.length > 4 && w[w.length-3] === w[w.length-4]) {
+                    bases.add(w.slice(0, -3));       // runner -> run
+                }
+            }
+            if (w.endsWith('ers') && w.length > 4) {
+                bases.add(w.slice(0, -3));           // killers -> kill
+                bases.add(w.slice(0, -2));           // makers -> make
+            }
+            if (w.endsWith('tion') || w.endsWith('sion')) {
+                bases.add(w.slice(0, -4));           // creation -> creat(e)
+                bases.add(w.slice(0, -3) + 'e');
+            }
+            
+            return [...bases].filter(b => b.length >= 2);
+        }
+
+        // Main function: get all word variants for Variants mode
+        function getWordVariants(word) {
+            if (!isSingleWord(word)) return [word.toLowerCase()];
+            
+            const w = word.toLowerCase();
+            const variants = new Set([w]);
+            
+            // Add plural/singular forms
+            variants.add(pluralize(w));
+            variants.add(singularize(w));
+            
+            // Add verb forms
+            generateVerbForms(w).forEach(f => variants.add(f));
+            
+            // Try to get base forms and expand from there
+            getBaseForms(w).forEach(base => {
+                variants.add(base);
+                variants.add(pluralize(base));
+                generateVerbForms(base).forEach(f => variants.add(f));
+            });
+            
+            // Check irregular mappings
+            if (irregularPlurals[w]) variants.add(irregularPlurals[w]);
+            if (pluralToSingular[w]) variants.add(pluralToSingular[w]);
+            
+            return [...variants].filter(v => v.length >= 2);
+        }
+
+        // ========== SEARCH ==========
 
         const performSearch = (query) => {
             const normalizedQuery = query.trim();
+            variantsInfo.classList.remove('visible');
+            
             if (!normalizedQuery || normalizedQuery.length < 2) {
                 resultsDiv.innerHTML = '';
                 currentMatches = [];
                 visibleCount = 0;
                 activeQuery = '';
+                activeWordForms = [];
                 statusDiv.textContent = `Loaded ${movies.length.toLocaleString()} movies. Ready to search.`;
                 return;
             }
 
             const lowerQuery = normalizedQuery.toLowerCase();
             const matches = [];
-            
-            // Get all word forms (singular/plural) for whole word modes
-            const wordForms = (activeMode === 'contains') ? [lowerQuery] : getWordForms(lowerQuery);
-            activeWordForms = wordForms; // Store for highlighting
-            
-            // Build regex patterns for each word form
-            const wholeWordRegexes = (activeMode === 'contains')
-                ? null
-                : wordForms.map(form => new RegExp(`(^|[^a-z0-9])${escapeRegex(form)}([^a-z0-9]|$)`, 'i'));
-            const compoundRegexes = (activeMode === 'compound')
-                ? wordForms.map(form => new RegExp(`(^|[^a-z0-9])${escapeRegex(form)}[a-z0-9]*`, 'i'))
-                : null;
+
+            // Determine word forms based on mode
+            if (activeMode === 'variants') {
+                activeWordForms = getWordVariants(lowerQuery);
+                // Show variants indicator
+                if (activeWordForms.length > 1) {
+                    variantsList.textContent = activeWordForms.slice(0, 12).join(', ') + 
+                        (activeWordForms.length > 12 ? ` (+${activeWordForms.length - 12} more)` : '');
+                    variantsInfo.classList.add('visible');
+                }
+            } else {
+                activeWordForms = [lowerQuery];
+            }
+
+            // Build regex for matching
+            let matchFn;
+            if (activeMode === 'substring') {
+                matchFn = (title) => title.includes(lowerQuery);
+            } else {
+                // exact or variants: whole word matching
+                const regexes = activeWordForms.map(form => 
+                    new RegExp(`(^|[^a-z])${escapeRegex(form)}([^a-z]|$)`, 'i')
+                );
+                matchFn = (title) => regexes.some(r => r.test(title));
+            }
 
             for (let i = 0; i < movies.length; i++) {
-                const lowerTitle = movies[i].title.toLowerCase();
-                let isMatch = false;
-
-                if (activeMode === 'contains') {
-                    isMatch = lowerTitle.includes(lowerQuery);
-                } else if (activeMode === 'wholeWord') {
-                    isMatch = wholeWordRegexes.some(regex => regex.test(lowerTitle));
-                } else {
-                    isMatch = wholeWordRegexes.some(regex => regex.test(lowerTitle)) || 
-                              compoundRegexes.some(regex => regex.test(lowerTitle));
-                }
-
-                if (isMatch) {
+                if (matchFn(movies[i].title.toLowerCase())) {
                     matches.push(movies[i]);
                 }
             }
@@ -418,7 +627,7 @@
             displayNextBatch(true);
         };
 
-        // Simple debounce
+        // Debounce
         let timeout;
         input.addEventListener('input', (e) => {
             clearTimeout(timeout);
@@ -428,14 +637,13 @@
         modeInputs.forEach(modeInput => {
             modeInput.addEventListener('change', () => {
                 activeMode = document.querySelector('input[name="searchMode"]:checked').value;
+                updateModeLabels();
                 performSearch(input.value);
             });
         });
 
         function displayNextBatch(reset = false) {
-            if (reset) {
-                resultsDiv.innerHTML = '';
-            }
+            if (reset) resultsDiv.innerHTML = '';
 
             if (currentMatches.length === 0) {
                 resultsDiv.innerHTML = '<div style="text-align:center; color:#666;">No matches found</div>';
@@ -447,12 +655,12 @@
             const html = nextBatch.map(m => `
                 <a href="https://letterboxd.com/imdb/${m.id}" target="_blank" class="movie-card">
                     <div>
-                        <span class="title">${highlight(m.title, activeQuery)}</span>
+                        <span class="title">${highlight(m.title)}</span>
                         <span class="year">(${m.year || '?'})</span>
                     </div>
                     <div style="text-align: right;">
-                         <span class="votes" style="display:block; font-size: 0.8rem; color: #666;">${m.votes ? m.votes.toLocaleString() + ' votes' : ''}</span>
-                         <span class="id">LB ↗</span>
+                        <span class="votes" style="display:block; font-size: 0.8rem; color: #666;">${m.votes ? m.votes.toLocaleString() + ' votes' : ''}</span>
+                        <span class="id">LB ↗</span>
                     </div>
                 </a>
             `).join('');
@@ -460,38 +668,29 @@
             resultsDiv.insertAdjacentHTML('beforeend', html);
             visibleCount += nextBatch.length;
             statusDiv.textContent = visibleCount < currentMatches.length
-                ? `Showing ${visibleCount.toLocaleString()} of ${currentMatches.length.toLocaleString()} matches for "${activeQuery}". Scroll to load more.`
-                : `Showing all ${currentMatches.length.toLocaleString()} matches for "${activeQuery}".`;
+                ? `Showing ${visibleCount.toLocaleString()} of ${currentMatches.length.toLocaleString()} matches. Scroll for more.`
+                : `Showing all ${currentMatches.length.toLocaleString()} matches.`;
         }
 
         let scrollCheckScheduled = false;
         window.addEventListener('scroll', () => {
-            if (scrollCheckScheduled) {
-                return;
-            }
+            if (scrollCheckScheduled) return;
             scrollCheckScheduled = true;
             requestAnimationFrame(() => {
                 scrollCheckScheduled = false;
-                if (!currentMatches.length || visibleCount >= currentMatches.length) {
-                    return;
-                }
-
-                const scrollPosition = window.innerHeight + window.scrollY;
-                const threshold = document.body.offsetHeight - 300;
-                if (scrollPosition >= threshold) {
+                if (!currentMatches.length || visibleCount >= currentMatches.length) return;
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
                     displayNextBatch();
                 }
             });
         }, { passive: true });
 
-        function highlight(text, query) {
-            // Highlight all word forms (singular/plural) in whole word modes
-            const formsToHighlight = activeWordForms.length > 0 ? activeWordForms : [query];
-            const pattern = formsToHighlight.map(f => escapeRegex(f)).join('|');
+        function highlight(text) {
+            if (!activeWordForms.length) return text;
+            const pattern = activeWordForms.map(f => escapeRegex(f)).join('|');
             const regex = new RegExp(`(${pattern})`, 'gi');
             return text.replace(regex, '<span style="color:var(--accent);">$1</span>');
         }
-
     </script>
 </body>
 </html>
